@@ -1,3 +1,5 @@
+`note` This doesn’t work for relationships where the model references itself, like areas in a building for nested tree dropdowns. The dynamic routing causes an infinite loop, so another manual method has to be used.
+
 `http://localhost:3000/api/role` will display all roles with the users as child, and including any nested relationship, in this case `role` > `user` > `post`
 
 
