@@ -80,7 +80,8 @@ Object.keys(models).forEach(modelName => {
           app.delete(`/api/${modelName.toLowerCase()}/:id`, async (req, res) => {
                try {
                     const deleted = await Model.destroy({
-                         where: { id: req.params.id }
+                         where: { id: req.params.id },
+                         individualHooks: true  // This will trigger the beforeDestroy hook in the model file
                     });
                     if (!deleted) {
                          return res.status(404).json({ error: `${modelName} not found` });
