@@ -39,3 +39,47 @@
     }
 ]
 ```
+
+when to use `hooks` in `Classes` 
+if in a route we are deleting data by first finding the id and then using `destroy` then in the class we need to use `beforeDestroy`
+
+```js
+const buildingId = req.params.id;
+const floors = await sequelize.models.Floor.findAll({ where: { buildingId } });
+
+// Destroy each floor individually to trigger its own beforeDestroy
+for (const floor of floors) {
+    // console.log(`Destroying floor ${floor.id}`);
+    await floor.destroy();
+}
+
+// Floor Class
+class Floor extendes Model {....
+Floor.beforeDestroy(async (floor, options) => {
+    await sequelize?.models?.CustomWidgetsController?.destroy({
+        where: {
+            floorId: floor.id
+        }
+    });
+});
+```
+
+but if we are deleting by using the `where` keyword, then we need to use `beforeBulkDestroy`
+
+```js
+const buildingId = req.params.id;
+const floors = await sequelize.models.Floor.destroy({ where: buildingId })
+
+// Floor Class
+class Floor extendes Model {....
+Floor.beforeBulkDestroy(async (options) => {
+          if (options?.where?.id) {
+               await sequelize?.models?.CustomWidgetsController?.destroy({
+                    where: {
+                         floorId: options?.where?.id
+                    }
+               });
+          }
+});
+```
+
