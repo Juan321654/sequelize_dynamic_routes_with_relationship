@@ -83,3 +83,30 @@ Floor.beforeBulkDestroy(async (options) => {
 });
 ```
 
+NOTE: when using `beforeBulkDestroy` inside a `class` and we are exptecting to cascade another `beforeDestroy` inside another `class` we must find the id's and destroy individually
+```js
+//Building class
+Building.beforeBulkDestroy(async (options) => {
+          if (options?.where?.id) {
+               const buildingId = options.where.id;
+               const floors = await sequelize.models.Floor.findAll({ where: { buildingId } });
+
+               // Destroy each floor individually to trigger its own beforeDestroy
+               for (const floor of floors) {
+                    // console.log(`Destroying floor ${floor.id}`);
+                    await floor.destroy();
+               }
+          }
+     });
+
+//Floor class
+Floor.beforeDestroy(async (floor, options) => {
+          await sequelize?.models?.CustomWidgetsController?.destroy({
+               where: {
+                    floorId: floor.id
+               }
+          });
+     });
+
+```
+
